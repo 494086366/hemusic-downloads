@@ -1,6 +1,6 @@
 {
   "version": "3.0.0",
-  "releasedAt": "2026-08-21T08:21:27Z",
+  "releasedAt": "2026-08-26T06:12:00Z",
   "releaseState": "ready",
   "platforms": [
     {
@@ -10,9 +10,9 @@
       "title": "Windows",
       "subtitle": "Windows 10 / 11 · 64 位",
       "filename": "HEmusic-Setup-3.0.0.exe",
-      "size": "150.7 MB",
-      "sha256": "A16BA3F3CF6F3D8152C396E29860B5F6B9425C17A2CE4AD90F17649C8DFA0497",
-      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0/HEmusic-Setup-3.0.0.exe",
+      "size": "204.3 MB",
+      "sha256": "DAD5B99269A5B2E350D754F6C3C1596F410C9739AA44BE19C21E7F7634D78EEF",
+      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r2/HEmusic-Setup-3.0.0.exe",
       "available": true
     },
     {
@@ -23,8 +23,8 @@
       "subtitle": "M1 / M2 / M3 / M4",
       "filename": "HEmusic-3.0.0-mac-arm64-local-sign.tar.gz",
       "size": "117.2 MB",
-      "sha256": "5BEC128E9C99A0D21758BABCC1E883A93B0E6874ACA936E3541F7D1693AF0367",
-      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0/HEmusic-3.0.0-mac-arm64-local-sign.tar.gz",
+      "sha256": "D9B46ACD421D4E1BD3760293D0153229D666246CA8EE90E4F979E915190EB175",
+      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r2/HEmusic-3.0.0-mac-arm64-local-sign.tar.gz",
       "available": true
     },
     {
@@ -34,9 +34,9 @@
       "title": "Mac Intel",
       "subtitle": "Intel 处理器 Mac",
       "filename": "HEmusic-3.0.0-mac-x64-local-sign.tar.gz",
-      "size": "128.0 MB",
-      "sha256": "5812964B480649E57F04B8CB48146BF3F97F47EF6073FE2A8CA8F1CAF36AA08B",
-      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0/HEmusic-3.0.0-mac-x64-local-sign.tar.gz",
+      "size": "128.1 MB",
+      "sha256": "400961CEB135439A42151FAF4F9DF9AC0433A3B569A7B0DE2BADECEB438E0F43",
+      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r2/HEmusic-3.0.0-mac-x64-local-sign.tar.gz",
       "available": true
     }
   ]
