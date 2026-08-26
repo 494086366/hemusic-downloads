@@ -1,6 +1,6 @@
 {
   "version": "3.0.0",
-  "releasedAt": "2026-08-26T06:12:00Z",
+  "releasedAt": "2026-08-26T07:26:34Z",
   "releaseState": "ready",
   "platforms": [
     {
@@ -23,8 +23,8 @@
       "subtitle": "M1 / M2 / M3 / M4",
       "filename": "HEmusic-3.0.0-mac-arm64-local-sign.tar.gz",
       "size": "117.2 MB",
-      "sha256": "D9B46ACD421D4E1BD3760293D0153229D666246CA8EE90E4F979E915190EB175",
-      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r2/HEmusic-3.0.0-mac-arm64-local-sign.tar.gz",
+      "sha256": "E717999376EF83C2D8CDFC9786B764EE065F886FD67BB313E65BFEA870DEF65C",
+      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r3/HEmusic-3.0.0-mac-arm64-local-sign.tar.gz",
       "available": true
     },
     {
@@ -35,8 +35,8 @@
       "subtitle": "Intel 处理器 Mac",
       "filename": "HEmusic-3.0.0-mac-x64-local-sign.tar.gz",
       "size": "128.1 MB",
-      "sha256": "400961CEB135439A42151FAF4F9DF9AC0433A3B569A7B0DE2BADECEB438E0F43",
-      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r2/HEmusic-3.0.0-mac-x64-local-sign.tar.gz",
+      "sha256": "63BCD25EFB1D2698BA69109BF7386F8D8296E2F7720B14E8F985C09152660478",
+      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r3/HEmusic-3.0.0-mac-x64-local-sign.tar.gz",
       "available": true
     }
   ]
