@@ -1,6 +1,6 @@
 {
   "version": "3.0.0",
-  "releasedAt": "2026-08-26T07:26:34Z",
+  "releasedAt": "2026-08-28T03:17:29Z",
   "releaseState": "ready",
   "platforms": [
     {
@@ -10,9 +10,9 @@
       "title": "Windows",
       "subtitle": "Windows 10 / 11 · 64 位",
       "filename": "HEmusic-Setup-3.0.0.exe",
-      "size": "204.3 MB",
-      "sha256": "DAD5B99269A5B2E350D754F6C3C1596F410C9739AA44BE19C21E7F7634D78EEF",
-      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r2/HEmusic-Setup-3.0.0.exe",
+      "size": "187.4 MB",
+      "sha256": "04C839C92E82843B954D9B034A63A8F5A36C6F828F8602C545449F3B40D3E3CB",
+      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r4/HEmusic-Setup-3.0.0.exe",
       "available": true
     },
     {
@@ -22,9 +22,9 @@
       "title": "Mac Apple Silicon",
       "subtitle": "M1 / M2 / M3 / M4",
       "filename": "HEmusic-3.0.0-mac-arm64-local-sign.tar.gz",
-      "size": "117.2 MB",
-      "sha256": "E717999376EF83C2D8CDFC9786B764EE065F886FD67BB313E65BFEA870DEF65C",
-      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r3/HEmusic-3.0.0-mac-arm64-local-sign.tar.gz",
+      "size": "117.3 MB",
+      "sha256": "0C2F20D89695B1EE8B75897683265550C9BB84EDB83739F655E364881D3FA9CE",
+      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r4/HEmusic-3.0.0-mac-arm64-local-sign.tar.gz",
       "available": true
     },
     {
@@ -35,8 +35,8 @@
       "subtitle": "Intel 处理器 Mac",
       "filename": "HEmusic-3.0.0-mac-x64-local-sign.tar.gz",
       "size": "128.1 MB",
-      "sha256": "63BCD25EFB1D2698BA69109BF7386F8D8296E2F7720B14E8F985C09152660478",
-      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r3/HEmusic-3.0.0-mac-x64-local-sign.tar.gz",
+      "sha256": "DAD82EDD4C45B9331F1015CD531FD9B9144896B4DB441064BE02F5053EEA1CD1",
+      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r4/HEmusic-3.0.0-mac-x64-local-sign.tar.gz",
       "available": true
     }
   ]
