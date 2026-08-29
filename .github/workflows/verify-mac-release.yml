@@ -1,0 +1,100 @@
+name: Verify Mac release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Draft or published release tag
+        required: true
+        default: v3.0.0-r5
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify ${{ matrix.arch }} package
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-14
+            machine: arm64
+          - arch: x64
+            runner: macos-15-intel
+            machine: x86_64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ inputs.tag }}
+      ARCHIVE: HEmusic-3.0.0-mac-${{ matrix.arch }}-local-sign.tar.gz
+      RELEASE_DIR: HEmusic-3.0.0-mac-${{ matrix.arch }}
+    steps:
+      - name: Confirm runner architecture
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = "${{ matrix.machine }}"
+
+      - name: Download release package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/hemusic-release"
+          gh release download "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern "$ARCHIVE" \
+            --dir "$RUNNER_TEMP/hemusic-release"
+          test -s "$RUNNER_TEMP/hemusic-release/$ARCHIVE"
+
+      - name: Extract and validate layout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/hemusic-app"
+          tar -xzf "$RUNNER_TEMP/hemusic-release/$ARCHIVE" -C "$RUNNER_TEMP/hemusic-app"
+          cd "$RUNNER_TEMP/hemusic-app/$RELEASE_DIR"
+          test -d HEmusic.app
+          test -f HEmusic-mac-fix.command
+          test -f README-mac.txt
+          bash -n HEmusic-mac-fix.command
+
+      - name: Sign and exercise bundled audio tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/hemusic-app/$RELEASE_DIR"
+          HEMUSIC_SKIP_OPEN=1 bash HEmusic-mac-fix.command ./HEmusic.app
+
+      - name: Launch Electron and reject early crashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/hemusic-app/$RELEASE_DIR"
+          log="$RUNNER_TEMP/hemusic-start-${{ matrix.arch }}.log"
+          ./HEmusic.app/Contents/MacOS/HEmusic >"$log" 2>&1 &
+          app_pid=$!
+          cleanup() {
+            kill "$app_pid" >/dev/null 2>&1 || true
+            wait "$app_pid" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          for _ in 1 2 3 4 5 6 7 8 9 10; do
+            sleep 1
+            if ! kill -0 "$app_pid" >/dev/null 2>&1; then
+              cat "$log"
+              exit 1
+            fi
+          done
+          test -s "$log" || true
+
+      - name: Upload startup log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hemusic-start-${{ matrix.arch }}
+          path: ${{ runner.temp }}/hemusic-start-${{ matrix.arch }}.log
+          if-no-files-found: ignore
+          retention-days: 3
