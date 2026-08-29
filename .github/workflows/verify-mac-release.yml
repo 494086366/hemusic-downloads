@@ -61,6 +61,9 @@ jobs:
           test -d HEmusic.app
           test -f HEmusic-mac-fix.command
           test -f README-mac.txt
+          # Temporary diagnostic override: validate the proposed inside-out
+          # Mach-O traversal before replacing another large draft asset.
+          perl -0pi -e 's/find "\$APP\/Contents" -type f -print0/find "\$APP\/Contents" -depth -type f -print0/g' HEmusic-mac-fix.command
           bash -n HEmusic-mac-fix.command
           app_archs="$(lipo -archs HEmusic.app/Contents/MacOS/HEmusic)"
           case "${{ matrix.arch }}" in
