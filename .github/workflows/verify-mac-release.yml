@@ -19,7 +19,7 @@ jobs:
       matrix:
         include:
           - arch: arm64
-            runner: macos-14
+            runner: macos-15
             machine: arm64
           - arch: x64
             runner: macos-15-intel
@@ -60,6 +60,11 @@ jobs:
           test -f HEmusic-mac-fix.command
           test -f README-mac.txt
           bash -n HEmusic-mac-fix.command
+          app_archs="$(lipo -archs HEmusic.app/Contents/MacOS/HEmusic)"
+          case "${{ matrix.arch }}" in
+            arm64) [[ " $app_archs " == *" arm64 "* ]] ;;
+            x64) [[ " $app_archs " == *" x86_64 "* ]] ;;
+          esac
 
       - name: Sign and exercise bundled audio tools
         shell: bash
@@ -74,21 +79,32 @@ jobs:
           set -euo pipefail
           cd "$RUNNER_TEMP/hemusic-app/$RELEASE_DIR"
           log="$RUNNER_TEMP/hemusic-start-${{ matrix.arch }}.log"
-          ./HEmusic.app/Contents/MacOS/HEmusic >"$log" 2>&1 &
+          targets="$RUNNER_TEMP/hemusic-targets-${{ matrix.arch }}.json"
+          ./HEmusic.app/Contents/MacOS/HEmusic --remote-debugging-port=9222 >"$log" 2>&1 &
           app_pid=$!
           cleanup() {
             kill "$app_pid" >/dev/null 2>&1 || true
             wait "$app_pid" >/dev/null 2>&1 || true
           }
           trap cleanup EXIT
-          for _ in 1 2 3 4 5 6 7 8 9 10; do
+          renderer_ready=0
+          for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
             sleep 1
             if ! kill -0 "$app_pid" >/dev/null 2>&1; then
               cat "$log"
               exit 1
             fi
+            if curl -fsS http://127.0.0.1:9222/json/list -o "$targets" \
+              && node -e 'const fs=require("fs"); const targets=JSON.parse(fs.readFileSync(process.argv[1], "utf8")); const ready=targets.some(target => target.type === "page" && target.url && target.url !== "about:blank" && !target.url.startsWith("devtools://")); process.exit(ready ? 0 : 1)' "$targets"; then
+              renderer_ready=1
+              break
+            fi
           done
-          test -s "$log" || true
+          if [ "$renderer_ready" != "1" ]; then
+            cat "$log"
+            test ! -f "$targets" || cat "$targets"
+            exit 1
+          fi
 
       - name: Upload startup log
         if: always()
