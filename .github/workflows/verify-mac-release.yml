@@ -73,7 +73,7 @@ jobs:
         run: |
           set -euo pipefail
           cd "$RUNNER_TEMP/hemusic-app/$RELEASE_DIR"
-          HEMUSIC_SKIP_OPEN=1 bash HEmusic-mac-fix.command ./HEmusic.app
+          HEMUSIC_SKIP_OPEN=1 bash -x HEmusic-mac-fix.command ./HEmusic.app
 
       - name: Launch Electron and reject early crashes
         shell: bash
@@ -85,7 +85,7 @@ jobs:
           ./HEmusic.app/Contents/MacOS/HEmusic --remote-debugging-port=9222 >"$log" 2>&1 &
           app_pid=$!
           cleanup() {
-            kill "$app_pid" >/dev/null 2>&1 || true
+            kill -KILL "$app_pid" >/dev/null 2>&1 || true
             wait "$app_pid" >/dev/null 2>&1 || true
           }
           trap cleanup EXIT
