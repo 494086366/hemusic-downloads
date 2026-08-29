@@ -73,10 +73,7 @@ jobs:
         run: |
           set -euo pipefail
           cd "$RUNNER_TEMP/hemusic-app/$RELEASE_DIR"
-          # Diagnostic pre-sign: prove that macOS can repair the complete
-          # Electron bundle recursively before uploading the final script.
-          codesign --force --deep --sign - --timestamp=none ./HEmusic.app
-          HEMUSIC_SKIP_OPEN=1 bash -x HEmusic-mac-fix.command ./HEmusic.app
+          HEMUSIC_SKIP_OPEN=1 bash HEmusic-mac-fix.command ./HEmusic.app
 
       - name: Launch Electron and reject early crashes
         shell: bash
