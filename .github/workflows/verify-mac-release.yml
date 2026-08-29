@@ -9,7 +9,9 @@ on:
         default: v3.0.0-r5
 
 permissions:
-  contents: read
+  # GitHub hides draft releases from read-only workflow tokens. This manually
+  # dispatched verifier only downloads assets, but needs push-level visibility.
+  contents: write
 
 jobs:
   verify:
