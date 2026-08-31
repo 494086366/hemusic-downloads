@@ -6,7 +6,16 @@ on:
       tag:
         description: Draft or published release tag
         required: true
-        default: v3.0.0-r5
+        default: v3.0.0-r6
+      arch:
+        description: Architecture to verify
+        required: true
+        type: choice
+        default: both
+        options:
+          - both
+          - arm64
+          - x64
 
 permissions:
   # GitHub hides draft releases from read-only workflow tokens. This manually
@@ -19,13 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - arch: arm64
-            runner: macos-15
-            machine: arm64
-          - arch: x64
-            runner: macos-15-intel
-            machine: x86_64
+        include: ${{ fromJSON(inputs.arch == 'arm64' && '[{"arch":"arm64","runner":"macos-15","machine":"arm64"}]' || inputs.arch == 'x64' && '[{"arch":"x64","runner":"macos-15-intel","machine":"x86_64"}]' || '[{"arch":"arm64","runner":"macos-15","machine":"arm64"},{"arch":"x64","runner":"macos-15-intel","machine":"x86_64"}]') }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
     env:
