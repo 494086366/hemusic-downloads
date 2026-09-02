@@ -1,6 +1,6 @@
 {
   "version": "3.0.0",
-  "releasedAt": "2026-08-31T08:18:35Z",
+  "releasedAt": "2026-09-02T17:17:42Z",
   "releaseState": "ready",
   "platforms": [
     {
@@ -22,9 +22,9 @@
       "title": "Mac Apple Silicon",
       "subtitle": "M1 / M2 / M3 / M4",
       "filename": "HEmusic-3.0.0-mac-arm64-local-sign.tar.gz",
-      "size": "139.9 MB",
-      "sha256": "F892D31F42BBE73BC8C12455B6F12963C42D90B6150B01942F268CE294B00B6E",
-      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r6/HEmusic-3.0.0-mac-arm64-local-sign.tar.gz",
+      "size": "140.0 MB",
+      "sha256": "F96D953320B05933D0CFDBD2079BF92D6358B6E8F0E570FE8553F4F065F4570D",
+      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r7/HEmusic-3.0.0-mac-arm64-local-sign.tar.gz",
       "available": true
     },
     {
