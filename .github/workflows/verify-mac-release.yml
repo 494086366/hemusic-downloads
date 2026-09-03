@@ -48,10 +48,17 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/hemusic-release"
-          gh release download "$RELEASE_TAG" \
-            --repo "$GITHUB_REPOSITORY" \
-            --pattern "$ARCHIVE" \
-            --dir "$RUNNER_TEMP/hemusic-release"
+          release_json="$(gh api --paginate \
+            "repos/$GITHUB_REPOSITORY/releases?per_page=100")"
+          asset_id="$(printf '%s' "$release_json" | jq -r \
+            --arg tag "$RELEASE_TAG" --arg archive "$ARCHIVE" \
+            '.[] | select(.tag_name == $tag) | .assets[] | select(.name == $archive) | .id' \
+            | head -n 1)"
+          test -n "$asset_id"
+          test "$asset_id" != "null"
+          gh api -H "Accept: application/octet-stream" \
+            "repos/$GITHUB_REPOSITORY/releases/assets/$asset_id" \
+            > "$RUNNER_TEMP/hemusic-release/$ARCHIVE"
           test -s "$RUNNER_TEMP/hemusic-release/$ARCHIVE"
 
       - name: Extract and validate layout
