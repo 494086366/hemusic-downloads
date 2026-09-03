@@ -6,11 +6,11 @@ on:
       runtime_url:
         description: HTTPS URL of the macOS ARM64 runtime archive
         required: false
-        default: https://101.35.53.98:8787/models/timbre/releases/2026.09.03.1/darwin-arm64/hemusic-openvino-stems-2026.09.03.1-darwin-arm64.tar.gz
+        default: https://101.35.53.98:8787/models/timbre/releases/2026.09.03.3/darwin-arm64/hemusic-openvino-stems-2026.09.03.3-darwin-arm64.tar.gz
       runtime_sha256:
         description: Expected runtime archive SHA-256
         required: false
-        default: 1f09e02bc9e8a250c2c66bb304f5b5ef8eeac29f5890b51499d7ca277c3926cd
+        default: 7a19c18e7485de4421f1b601b049957b13360cc85285433108373cb522024a59
   push:
     paths:
       - .github/workflows/verify-timbre-runtime.yml
@@ -26,8 +26,8 @@ jobs:
     env:
       RUNTIME_URL_INPUT: ${{ inputs.runtime_url }}
       RUNTIME_SHA256_INPUT: ${{ inputs.runtime_sha256 }}
-      MODEL_XML_URL: https://101.35.53.98:8787/models/timbre/releases/2026.09.03.1/darwin-arm64/htdemucs_fwd.xml
-      MODEL_BIN_URL: https://101.35.53.98:8787/models/timbre/releases/2026.09.03.1/darwin-arm64/htdemucs_fwd.bin
+      MODEL_XML_URL: https://101.35.53.98:8787/models/timbre/releases/2026.09.03.3/darwin-arm64/htdemucs_fwd.xml
+      MODEL_BIN_URL: https://101.35.53.98:8787/models/timbre/releases/2026.09.03.3/darwin-arm64/htdemucs_fwd.bin
       MODEL_XML_SHA256: 06c68a8a21a6cefb905575cbe689cfa3241416a4c263271804ae5690f8ba5cbf
       MODEL_BIN_SHA256: 5d66281099b5fdaba8844e306f3d6710b3e0b005fa9aad4514ce7604e24fbec9
     steps:
@@ -41,8 +41,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          runtime_url="${RUNTIME_URL_INPUT:-https://101.35.53.98:8787/models/timbre/releases/2026.09.03.1/darwin-arm64/hemusic-openvino-stems-2026.09.03.1-darwin-arm64.tar.gz}"
-          runtime_sha256="${RUNTIME_SHA256_INPUT:-1f09e02bc9e8a250c2c66bb304f5b5ef8eeac29f5890b51499d7ca277c3926cd}"
+          runtime_url="${RUNTIME_URL_INPUT:-https://101.35.53.98:8787/models/timbre/releases/2026.09.03.3/darwin-arm64/hemusic-openvino-stems-2026.09.03.3-darwin-arm64.tar.gz}"
+          runtime_sha256="${RUNTIME_SHA256_INPUT:-7a19c18e7485de4421f1b601b049957b13360cc85285433108373cb522024a59}"
           mkdir -p "$RUNNER_TEMP/timbre/runtime" "$RUNNER_TEMP/timbre/model"
           curl --fail --location --retry 3 --output "$RUNNER_TEMP/timbre/runtime.tar.gz" "$runtime_url"
           curl --fail --location --retry 3 --output "$RUNNER_TEMP/timbre/model/htdemucs_fwd.xml" "$MODEL_XML_URL"
@@ -58,19 +58,20 @@ jobs:
           tar -tzf "$RUNNER_TEMP/timbre/runtime.tar.gz" >/dev/null
           tar -xzf "$RUNNER_TEMP/timbre/runtime.tar.gz" -C "$RUNNER_TEMP/timbre/runtime"
           test -z "$(find "$RUNNER_TEMP/timbre/runtime" -type l -print -quit)"
+          test -f "$RUNNER_TEMP/timbre/runtime/hemusic-openvino-stems"
           test -f "$RUNNER_TEMP/timbre/runtime/python/bin/python3.10"
           test -f "$RUNNER_TEMP/timbre/runtime/hemusic_demucs_openvino.pyc"
-          chmod 0755 "$RUNNER_TEMP/timbre/runtime/python/bin/python3.10"
+          chmod 0755 "$RUNNER_TEMP/timbre/runtime/hemusic-openvino-stems"
           file "$RUNNER_TEMP/timbre/runtime/python/bin/python3.10" | grep -q 'arm64'
 
       - name: Probe runtime and DSP pipeline
         shell: bash
         run: |
           set -euo pipefail
-          python="$RUNNER_TEMP/timbre/runtime/python/bin/python3.10"
-          runner="$RUNNER_TEMP/timbre/runtime/hemusic_demucs_openvino.pyc"
-          "$python" "$runner" --version
-          "$python" "$runner" --self-test-dsp
+          runtime="$RUNNER_TEMP/timbre/runtime/hemusic-openvino-stems"
+          "$runtime" --version
+          test -x "$RUNNER_TEMP/timbre/runtime/python/bin/python3.10"
+          "$runtime" --self-test-dsp
 
       - name: Run a real six-stem separation
         shell: bash
@@ -94,8 +95,7 @@ jobs:
                   frames.extend(struct.pack('<hh', left, right))
               audio.writeframes(frames)
           PY
-          "$RUNNER_TEMP/timbre/runtime/python/bin/python3.10" \
-            "$RUNNER_TEMP/timbre/runtime/hemusic_demucs_openvino.pyc" \
+          "$RUNNER_TEMP/timbre/runtime/hemusic-openvino-stems" \
             --input "$input" \
             --output-dir "$output" \
             --model "$RUNNER_TEMP/timbre/model/htdemucs_fwd.xml" \
