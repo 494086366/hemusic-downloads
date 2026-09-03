@@ -1,0 +1,117 @@
+name: Verify Mac ARM64 timbre runtime
+
+on:
+  workflow_dispatch:
+    inputs:
+      runtime_url:
+        description: HTTPS URL of the macOS ARM64 runtime archive
+        required: false
+        default: https://101.35.53.98:8787/models/timbre/releases/2026.09.03.1/darwin-arm64/hemusic-openvino-stems-2026.09.03.1-darwin-arm64.tar.gz
+      runtime_sha256:
+        description: Expected runtime archive SHA-256
+        required: false
+        default: 1f09e02bc9e8a250c2c66bb304f5b5ef8eeac29f5890b51499d7ca277c3926cd
+  push:
+    paths:
+      - .github/workflows/verify-timbre-runtime.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Probe and separate on Apple Silicon
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      RUNTIME_URL_INPUT: ${{ inputs.runtime_url }}
+      RUNTIME_SHA256_INPUT: ${{ inputs.runtime_sha256 }}
+      MODEL_XML_URL: https://101.35.53.98:8787/models/timbre/releases/2026.09.03.1/darwin-arm64/htdemucs_fwd.xml
+      MODEL_BIN_URL: https://101.35.53.98:8787/models/timbre/releases/2026.09.03.1/darwin-arm64/htdemucs_fwd.bin
+      MODEL_XML_SHA256: 06c68a8a21a6cefb905575cbe689cfa3241416a4c263271804ae5690f8ba5cbf
+      MODEL_BIN_SHA256: 5d66281099b5fdaba8844e306f3d6710b3e0b005fa9aad4514ce7604e24fbec9
+    steps:
+      - name: Confirm Apple Silicon runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = arm64
+
+      - name: Download verified runtime and model
+        shell: bash
+        run: |
+          set -euo pipefail
+          runtime_url="${RUNTIME_URL_INPUT:-https://101.35.53.98:8787/models/timbre/releases/2026.09.03.1/darwin-arm64/hemusic-openvino-stems-2026.09.03.1-darwin-arm64.tar.gz}"
+          runtime_sha256="${RUNTIME_SHA256_INPUT:-1f09e02bc9e8a250c2c66bb304f5b5ef8eeac29f5890b51499d7ca277c3926cd}"
+          mkdir -p "$RUNNER_TEMP/timbre/runtime" "$RUNNER_TEMP/timbre/model"
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/timbre/runtime.tar.gz" "$runtime_url"
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/timbre/model/htdemucs_fwd.xml" "$MODEL_XML_URL"
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/timbre/model/htdemucs_fwd.bin" "$MODEL_BIN_URL"
+          echo "$runtime_sha256  $RUNNER_TEMP/timbre/runtime.tar.gz" | shasum -a 256 -c -
+          echo "$MODEL_XML_SHA256  $RUNNER_TEMP/timbre/model/htdemucs_fwd.xml" | shasum -a 256 -c -
+          echo "$MODEL_BIN_SHA256  $RUNNER_TEMP/timbre/model/htdemucs_fwd.bin" | shasum -a 256 -c -
+
+      - name: Validate and extract the client payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          tar -tzf "$RUNNER_TEMP/timbre/runtime.tar.gz" >/dev/null
+          tar -xzf "$RUNNER_TEMP/timbre/runtime.tar.gz" -C "$RUNNER_TEMP/timbre/runtime"
+          test -z "$(find "$RUNNER_TEMP/timbre/runtime" -type l -print -quit)"
+          test -f "$RUNNER_TEMP/timbre/runtime/python/bin/python3.10"
+          test -f "$RUNNER_TEMP/timbre/runtime/hemusic_demucs_openvino.pyc"
+          chmod 0755 "$RUNNER_TEMP/timbre/runtime/python/bin/python3.10"
+          file "$RUNNER_TEMP/timbre/runtime/python/bin/python3.10" | grep -q 'arm64'
+
+      - name: Probe runtime and DSP pipeline
+        shell: bash
+        run: |
+          set -euo pipefail
+          python="$RUNNER_TEMP/timbre/runtime/python/bin/python3.10"
+          runner="$RUNNER_TEMP/timbre/runtime/hemusic_demucs_openvino.pyc"
+          "$python" "$runner" --version
+          "$python" "$runner" --self-test-dsp
+
+      - name: Run a real six-stem separation
+        shell: bash
+        run: |
+          set -euo pipefail
+          input="$RUNNER_TEMP/timbre/input.wav"
+          output="$RUNNER_TEMP/timbre/stems"
+          /usr/bin/python3 - "$input" <<'PY'
+          import math, struct, sys, wave
+          target = sys.argv[1]
+          rate = 44100
+          with wave.open(target, 'wb') as audio:
+              audio.setnchannels(2)
+              audio.setsampwidth(2)
+              audio.setframerate(rate)
+              frames = bytearray()
+              for index in range(rate * 2):
+                  t = index / rate
+                  left = int(9000 * math.sin(2 * math.pi * 220 * t))
+                  right = int(8000 * math.sin(2 * math.pi * 330 * t))
+                  frames.extend(struct.pack('<hh', left, right))
+              audio.writeframes(frames)
+          PY
+          "$RUNNER_TEMP/timbre/runtime/python/bin/python3.10" \
+            "$RUNNER_TEMP/timbre/runtime/hemusic_demucs_openvino.pyc" \
+            --input "$input" \
+            --output-dir "$output" \
+            --model "$RUNNER_TEMP/timbre/model/htdemucs_fwd.xml" \
+            --device CPU \
+            --profile multi_stem \
+            --shifts 0
+          for stem in vocals drums bass guitar piano other; do
+            test -s "$output/$stem.wav"
+          done
+          test "$(find "$output" -type f -name '*.wav' | wc -l | tr -d ' ')" = 6
+
+      - name: Upload verification outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: timbre-runtime-arm64-verification
+          path: ${{ runner.temp }}/timbre/stems/*.wav
+          if-no-files-found: ignore
+          retention-days: 3
