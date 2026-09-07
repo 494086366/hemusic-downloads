@@ -1,0 +1,24 @@
+name: Assemble Mac ARM64 release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Private draft release tag
+        required: true
+      sha256:
+        description: Expected SHA-256 of the complete archive
+        required: true
+permissions:
+  contents: write
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ inputs.tag }}
+      EXPECTED_SHA256: ${{ inputs.sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify and assemble draft archive
+        run: node .github/scripts/assemble-mac-release.cjs
