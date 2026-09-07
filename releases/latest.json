@@ -1,6 +1,6 @@
 {
   "version": "3.0.0",
-  "releasedAt": "2026-09-03T08:07:45Z",
+  "releasedAt": "2026-09-07T04:39:33Z",
   "releaseState": "ready",
   "platforms": [
     {
@@ -23,8 +23,8 @@
       "subtitle": "M1 / M2 / M3 / M4",
       "filename": "HEmusic-3.0.0-mac-arm64-local-sign.tar.gz",
       "size": "140.0 MB",
-      "sha256": "0E6E25A4D9CFED7CAAED865633E30E335AB8A8FE9594FD361E02AE1AFF5C8DE6",
-      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r9/HEmusic-3.0.0-mac-arm64-local-sign.tar.gz",
+      "sha256": "B8C3FC41A401D129780F183B6B11DA02DC72862200397030554B9DBA7384E221",
+      "url": "https://github.com/494086366/hemusic-downloads/releases/download/v3.0.0-r10/HEmusic-3.0.0-mac-arm64-local-sign.tar.gz",
       "available": true
     },
     {
